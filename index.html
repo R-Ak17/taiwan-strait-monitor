@@ -284,9 +284,6 @@
   @media (pointer: coarse) { #crosshair { display: block; } }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 </style>
-</head>
-<body>
-
 
 <div id="map" aria-label="Map of the Taiwan Strait"></div>
 <div id="crosshair" aria-hidden="true"></div>
@@ -307,7 +304,7 @@
     <button data-view="strait" aria-pressed="false">Strait</button>
     <button data-view="balance" aria-pressed="false">Balance</button>
   </nav>
-  <button class="status" id="ais-status" aria-label="Live AIS status"><span class="dot"></span><span id="ais-text">Live AIS: checking…</span></button>
+  <button class="status" id="ais-status" aria-label="Live AIS status"><span class="dot"></span><span id="ais-text">AIS: checking…</span></button>
   <div class="actions">
     <button id="btn-layers" aria-expanded="false" aria-controls="drawer">Layers <span class="count" id="layer-count"></span></button>
     <button id="btn-notes" aria-expanded="false" aria-controls="sheet">Notes <span class="count" id="note-count"></span></button>
@@ -379,8 +376,8 @@
         info: ['Depth bands', '200, 1,000, 2,000, 3,000 and 4,000 m (Natural Earth). Almost the whole strait is shallower than 200 m.'] },
       { id: 'cables', label: 'Cables', sw: '--cable', line: true, ids: ['cables-line', 'cables-hit'],
         info: ['Submarine cables', 'OpenStreetMap, exported Nov 2026. Incomplete: mapped cables only. Tap a cable.'] },
-      { id: 'ships', label: 'Live ships', sw: '--other', ids: ['ais-heading', 'ais-ships'],
-        info: ['Live ships (AIS)', 'Vessel positions from AISStream, refreshed about every 15 minutes. Navy: Taiwan-flagged; red: PRC-flagged; grey: all other flags (including Hong Kong and flags of convenience). A short line shows course for moving ships. Many military and coast guard ships do not broadcast AIS, so absence on this layer proves nothing. Tap a ship.'] },
+      { id: 'ships', label: 'Ship traffic (AIS)', sw: '--other', ids: ['ais-heading', 'ais-ships'],
+        info: ['Ship traffic (AIS)', 'Where ships were on the latest complete day, from Global Fishing Watch (satellite and shore AIS, about 4–5 days behind). Each dot is a grid cell: larger dots mean more vessel-hours. Navy: Taiwan-flagged; red: PRC-flagged; grey: all other flags. Cells are 0.01° (about 1 km) in the three case areas and 0.1° (about 10 km) elsewhere. Many military and coast guard ships do not broadcast AIS, so absence proves nothing. Tap a cell.'] },
       { id: 'aoi', label: 'Study areas', sw: '--aoi', line: true, ids: ['aoi-fill', 'aoi-line'],
         info: ['Study areas', 'Author-defined analytical boxes for Kinmen, Matsu and Penghu, not official boundaries'] }
     ];
@@ -465,7 +462,11 @@
       // Live ships: a course line for moving vessels, then the vessel dot on top.
       L({ id: 'ais-heading', type: 'line', source: 'ais-heading', paint: { 'line-width': 1.4, 'line-opacity': 0.8 } });
       L({ id: 'ais-ships', type: 'circle', source: 'ais',
-          paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 5, 1.8, 9, 3.6, 13, 6], 'circle-stroke-width': 1, 'circle-opacity': 0.92 } });
+          paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'],
+                     5, ['*', 1.6, ['interpolate', ['linear'], ['sqrt', ['max', ['get', 'hours'], 0]], 0, 0.7, 2, 1, 6, 1.8, 15, 2.6]],
+                     9, ['*', 3.2, ['interpolate', ['linear'], ['sqrt', ['max', ['get', 'hours'], 0]], 0, 0.7, 2, 1, 6, 1.8, 15, 2.6]],
+                     13, ['*', 6, ['interpolate', ['linear'], ['sqrt', ['max', ['get', 'hours'], 0]], 0, 0.7, 2, 1, 6, 1.8, 15, 2.6]]],
+                   'circle-stroke-width': 0.6, 'circle-opacity': 0.75 } });
       L({ id: 'vertices', type: 'circle', source: 'zones', filter: isZone('vertex'), minzoom: 9,
           paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 2.5, 13, 5], 'circle-stroke-width': 1.2 } });
       L({ id: 'basepoints', type: 'circle', source: 'baselines', filter: isKind('basepoint'), minzoom: 6,
@@ -693,57 +694,58 @@
         .then(([fc, sum]) => {
           AIS.summary = sum; AIS.error = null;
           map.getSource('ais').setData(fc); map.getSource('ais-heading').setData(headingLines(fc));
-          const when = parseUtc(fc.generated_utc || (sum && sum.generated_utc));
-          const mins = when ? (Date.now() - when.getTime()) / 60000 : 999;
-          setStatus(mins <= 45 ? 'live' : 'stale', `Live AIS · ${fc.features.length.toLocaleString('en-GB')} vessels · ${ago(when)}`);
+          const day = fc.data_date || (sum && sum.data_date);
+          const age = day ? (Date.now() - new Date(day + 'T00:00:00Z').getTime()) / 864e5 : 99;
+          const n = sum && sum.areas && sum.areas.strait ? sum.areas.strait.vessels : null;
+          setStatus(age <= 8 ? 'live' : 'stale', `AIS · ${day ? fmtDay(day) : 'date unknown'}${n != null ? ' · ' + n.toLocaleString('en-GB') + ' vessels' : ''}`);
         })
-        .catch((e) => { AIS.error = e.message; setStatus(null, 'Live AIS: snapshot unavailable'); });
+        .catch((e) => { AIS.error = e.message; setStatus(null, 'AIS: data unavailable'); });
     }
     function startAis() {
       load('data/config.json').then((c) => {
         AIS.base = (c && c.ais_base_url) || '';
-        if (!AIS.base) { setStatus(null, 'Live AIS: not connected yet'); return; }
+        if (!AIS.base) { setStatus(null, 'AIS: not connected yet'); return; }
         if (!AIS.base.endsWith('/')) AIS.base += '/';
         refreshAis();
-        setInterval(refreshAis, 5 * 60 * 1000);   // the snapshot itself changes about every 15 minutes
-      }).catch(() => setStatus(null, 'Live AIS: not connected yet'));
+        setInterval(refreshAis, 30 * 60 * 1000);   // the data change once a day
+      }).catch(() => setStatus(null, 'AIS: not connected yet'));
     }
     const SIDE_NAME = { taiwan: 'Taiwan-flagged', prc: 'PRC-flagged', other: 'Other flags' };
+    const fmtDay = (d) => new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+    const GFW_CREDIT = () => linkP('Data: Global Fishing Watch, AIS vessel presence, CC BY-NC 4.0.', 'https://globalfishingwatch.org', 'Powered by Global Fishing Watch');
     function aisSheet() {
       const wrap = el('div', 'prose');
-      wrap.append(el('h2', null, 'Live AIS'));
+      wrap.append(el('h2', null, 'Ship traffic (AIS)'));
       const s = AIS.summary;
       if (!AIS.base) {
-        wrap.append(el('p', null, 'The live layer is built, but no data source is connected yet. Once the scheduled collector runs on the public site, ships appear here and refresh about every 15 minutes. Setup steps are in the README.'));
-      } else if (!s) {
-        wrap.append(el('p', null, 'The snapshot could not be loaded' + (AIS.error ? ` (${AIS.error})` : '') + '. The collector may not have run yet, or GitHub may be slow to serve the file.'));
+        wrap.append(el('p', null, 'The traffic layer is built, but no data source is connected yet. Setup steps are in the README.'));
+      } else if (!s || !s.areas) {
+        wrap.append(el('p', null, 'The data could not be loaded' + (AIS.error ? ` (${AIS.error})` : '') + '. The daily job may not have run yet, or GitHub may be slow to serve the file.'));
       } else {
-        wrap.append(el('p', 'meta', `Snapshot ${s.generated_utc} · ${s.window_seconds} s listening window · ${s.messages.toLocaleString('en-GB')} messages`));
+        wrap.append(el('p', 'meta', `Day shown: ${fmtDay(s.data_date)} (UTC) · updated ${s.generated_utc.slice(0, 10)}`));
         const g = el('div', 'stat-grid');
-        ['Area', 'All', 'Taiwan', 'PRC', 'Other'].forEach((h) => g.append(el('span', 'h' + (h === 'Area' ? '' : ' n'), h)));
-        for (const [a, label] of [['kinmen', 'Kinmen'], ['matsu', 'Matsu'], ['penghu', 'Penghu'], ['strait', 'Rest of strait']]) {
+        ['Area', 'Vessels', 'Taiwan', 'PRC', 'Other'].forEach((h) => g.append(el('span', 'h' + (h === 'Area' ? '' : ' n'), h)));
+        for (const [a, label] of [['kinmen', 'Kinmen'], ['matsu', 'Matsu'], ['penghu', 'Penghu'], ['strait', 'Whole strait']]) {
           const c = s.areas[a] || { vessels: 0, by_side: {} };
           g.append(el('span', null, label), el('span', 'n', c.vessels), el('span', 'n', c.by_side.taiwan || 0), el('span', 'n', c.by_side.prc || 0), el('span', 'n', c.by_side.other || 0));
         }
         wrap.append(g);
+        wrap.append(el('p', null, 'Vessels: distinct ships that broadcast AIS inside each area that day. "Whole strait" is 21.5–27.5°N, 116.5–122.5°E and includes the three case areas.'));
       }
-      wrap.append(el('p', null, ''), el('p', null, 'How it works: every 15 minutes a scheduled job listens to AISStream for three minutes, keeps each vessel’s latest position and publishes a snapshot. AISStream relies on volunteer shore receivers, so coverage has gaps, and ships can switch AIS off or broadcast false identities. Military and many coast guard vessels usually do not appear.'));
-      const more = NOTES.find((n) => n.title.startsWith('Live AIS'));
+      wrap.append(el('p', null, 'How it works: once a day a scheduled job asks Global Fishing Watch for the most recent complete day. GFW combines satellite and shore AIS and keeps one position per vessel per hour, so the map shows where ships spent time, not live positions, and runs about 4–5 days behind. Free live feeds (AISStream) were tested first and returned no ships at all here, because no volunteer receivers cover the strait. Ships can switch AIS off or broadcast false identities, and military and many coast guard vessels usually do not appear.'));
+      wrap.append(GFW_CREDIT());
+      const more = NOTES.find((n) => n.title.startsWith('Live AIS') || n.title.startsWith('Ship traffic'));
       if (more) { const b = el('button', 'card'); b.append(el('span', 't', 'Method and limits'), el('span', 'chev', '›'), el('span', 's', 'Full note')); b.onclick = () => noteDetail(more); wrap.append(b); }
-      openSheet('Live AIS', wrap, null);
+      openSheet('Ship traffic', wrap, null);
     }
     $('ais-status').onclick = aisSheet;
     map.on('click', 'ais-ships', (e) => {
       const p = e.features[0].properties, [lng, lat] = e.features[0].geometry.coordinates;
-      const val = (x) => (x === null || x === undefined || x === 'null' ? null : x);
-      const t = parseUtc(val(p.time_utc));
-      const rows = [
-        `${SIDE_NAME[p.side] || 'Other flags'}: ${p.flag}. Type: ${p.category}${val(p.type_code) != null ? ' (AIS code ' + p.type_code + ')' : ''}.`,
-        `Speed ${val(p.sog) != null ? p.sog + ' kn' : 'not reported'}; course ${val(p.cog) != null ? p.cog + '°' : 'not reported'}${val(p.nav) ? '; ' + p.nav : ''}.`,
-        `Last report ${t ? t.toISOString().slice(0, 16).replace('T', ' ') + ' UTC (' + ago(t) + ')' : 'time unknown'}; Class ${p.class} transponder${val(p.length_m) ? '; about ' + p.length_m + ' m long' : ''}${val(p.destination) ? '; destination given as “' + p.destination + '”' : ''}.`
-      ];
-      featureSheet('Live ship (AIS)', val(p.name) || 'Name not yet broadcast', `MMSI ${p.mmsi} · ${toDMS(lat, 'N', 'S')} ${toDMS(lng, 'E', 'W')}`,
-        rows.map((r) => el('p', null, r)).concat([linkP('AIS data is self-reported by the ship and can be wrong or spoofed.', 'https://www.marinetraffic.com/en/ais/details/ships/mmsi:' + p.mmsi, 'Look up on MarineTraffic')]));
+      const size = p.res === '0.01' ? 'about 1 km' : 'about 10 km';
+      featureSheet('Ship traffic (AIS)', `${SIDE_NAME[p.side] || 'Other flags'}: ${p.hours} vessel-hours`,
+        `Grid cell ${p.res}° (${size}) · ${toDMS(lat, 'N', 'S')} ${toDMS(lng, 'E', 'W')}`,
+        [el('p', null, `On ${AIS.summary && AIS.summary.data_date ? fmtDay(AIS.summary.data_date) : 'the day shown'}, ships of this flag group spent a combined ${p.hours} hours in this cell (one AIS position per vessel per hour).${p.flags ? ' Flags: ' + p.flags + '.' : ''}`),
+         el('p', null, 'Vessel-hours measure presence, not the number of ships: one ship anchored all day counts 24.'), GFW_CREDIT()]);
     });
 
     for (const id of ['vertices', 'basepoints', 'cables-hit', 'ais-ships']) {
@@ -900,6 +902,5 @@
     else map.on('mousemove', (e) => show(e.lngLat, ''));
   }
 </script>
-
 </body>
 </html>

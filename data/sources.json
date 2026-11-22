@@ -135,13 +135,13 @@
     },
     {
       "id": "ais",
-      "name": "Live ships (AIS)",
-      "source": "AISStream WebSocket API (terrestrial AIS from volunteer receivers), collected by tools/ais_collect.py via a scheduled GitHub Actions workflow",
-      "url": "https://aisstream.io/documentation",
-      "retrieved": "live, about every 15 minutes",
-      "licence": "AISStream terms of service",
-      "processing": "3-minute listening window per run over 21.5–27.5°N, 116.5–122.5°E; latest position per MMSI; flag from MMSI digits; type from AIS ship-type codes; per-area counts appended to counts_history.csv.",
-      "limitations": "Uneven receiver coverage; self-reported and spoofable data; most military and many coast guard and militia vessels do not broadcast; scheduled runs can be delayed or skipped."
+      "name": "Ship traffic (AIS)",
+      "source": "Global Fishing Watch 4Wings API, AIS vessel presence dataset (public-global-presence:latest), collected daily by tools/gfw_collect.py via a scheduled GitHub Actions workflow",
+      "url": "https://globalfishingwatch.org/our-apis/",
+      "retrieved": "daily; data run about 4–5 days behind",
+      "licence": "CC BY-NC 4.0 (non-commercial; 'Powered by Global Fishing Watch')",
+      "processing": "Latest complete UTC day; presence hours grouped by flag (TWN, CHN, other) on 0.01° cells in the three case areas and 0.1° cells elsewhere; distinct vessels per area; daily rows appended to counts_history.csv.",
+      "limitations": "Not live. AIS is self-reported and can be switched off or spoofed; militia, coast guard and military vessels are under-represented; satellite reception thins in congested waters. AISStream (free live AIS) was tested and has no coverage in the strait."
     }
   ]
 }
