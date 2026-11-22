@@ -35,14 +35,34 @@ def side_of(flag):
     f = (flag or "").upper()
     return "taiwan" if f == "TWN" else "prc" if f == "CHN" else "other"
 
-def box_geojson(b):
+def box_geojson(b, form):
     w, s, e, n = b
-    return json.dumps({"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {},
-        "geometry": {"type": "Polygon", "coordinates": [[[w, s], [e, s], [e, n], [w, n], [w, s]]]}}]})
+    geom = {"type": "Polygon", "coordinates": [[[w, s], [e, s], [e, n], [w, n], [w, s]]]}
+    feat = {"type": "Feature", "properties": {}, "geometry": geom}
+    return {"collection": {"type": "FeatureCollection", "features": [feat]}, "feature": feat, "geometry": geom,
+            "string": json.dumps({"type": "FeatureCollection", "features": [feat]})}[form]
+
+# The docs disagree on the body shape, so try each until GFW accepts one, then keep using it.
+BODY_FORMS = ["geometry", "feature", "collection", "string"]
+_FORM = None
 
 def request(token, params, box, tries=4):
+    global _FORM
+    forms = [_FORM] if _FORM else BODY_FORMS
+    for i, form in enumerate(forms):
+        try:
+            data = _post(token, params, json.dumps({"geojson": box_geojson(box, form)}).encode(), tries)
+            if _FORM is None:
+                print(f"GFW accepted the '{form}' body shape", file=sys.stderr)
+            _FORM = form
+            return data
+        except RuntimeError as e:
+            if "422" in str(e) and i < len(forms) - 1:
+                print(f"body shape '{form}' rejected: {e}", file=sys.stderr); continue
+            raise
+
+def _post(token, params, body, tries):
     url = API + "?" + urllib.parse.urlencode(params)
-    body = json.dumps({"geojson": box_geojson(box)}).encode()
     for attempt in range(tries):
         req = urllib.request.Request(url, data=body, method="POST", headers={
             "Authorization": "Bearer " + token, "Content-Type": "application/json", "Content-Language": "en-EN",
