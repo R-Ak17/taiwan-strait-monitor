@@ -6,6 +6,11 @@ on:
   schedule:
     - cron: "7,22,37,52 * * * *"   # every 15 min, away from the busy top of the hour
   workflow_dispatch:                # lets you run it by hand from the Actions tab
+    inputs:
+      test_box:
+        description: "Test only: lat,lon,lat,lon box (e.g. 49,-6,52,2 for the English Channel). Leave empty for the strait."
+        required: false
+        default: ""
 
 permissions:
   contents: write                   # needed to push the ais-data branch
@@ -39,6 +44,7 @@ jobs:
       - name: Collect a 3-minute AIS snapshot
         env:
           AISSTREAM_API_KEY: ${{ secrets.AISSTREAM_API_KEY }}
+          AIS_TEST_BOX: ${{ github.event.inputs.test_box }}
         run: python3 tools/ais_collect.py --out ais-out --seconds 180
 
       - name: Publish to the ais-data branch (a single commit, replaced each run)
