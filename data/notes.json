@@ -1,0 +1,77 @@
+[
+ {
+  "case": "kinmen",
+  "title": "Research finding · Kinmen zones",
+  "html": "<p class=\"finding\">The zones are now drawn from the <strong>27 corner points on the official Mainland Affairs Council map</strong>, which applies the Ministry of National Defense notice of 7 June 2004 (猛獅字第0930001493號). Each reading was cross-checked against its position on the map; all agree within a few hundred metres. Point 2's label is cut off by the map frame, so its seconds are estimated (about ±150 m).</p>\n      <dl class=\"defs\">\n        <dt>Prohibited waters (inner)</dt>\n        <dd>4,000 m east and 8,000 m south of Greater Kinmen's low-water line; 1,500 m north of Mashan; 4,000 m east of Beiding; 2,000 m north, west and south of Dadan and Erdan; west of Lieyu, inside a line through four named islets and reefs.</dd>\n        <dt>Restricted waters (outer)</dt>\n        <dd>4,000–6,000 m east; 8,000–10,000 m south; 4,000 m east of Beiding; 2,000 m south of Dadan and Erdan.</dd>\n      </dl>"
+ },
+ {
+  "case": "kinmen",
+  "title": "International law",
+  "html": "<dl class=\"defs\">\n        <dt>The UNCLOS default</dt>\n        <dd>A state may claim a territorial sea of up to 12 nautical miles from its low-water line (Arts. 3 and 5). Where two coasts are less than 24 nm apart and there is no agreement, neither may extend beyond the equidistance line, unless historic title or special circumstances apply (Art. 15). Kinmen lies roughly 2–10 km from the mainland, so neither side can have a full 12 nm sea here.</dd>\n        <dt>Taiwan's position</dt>\n        <dd>The zones are a domestic security regime under Article 29 of the 1992 Cross-Strait Act, not UNCLOS maritime zones. Around Taiwan they follow the 12 and 24 nm lines; around Kinmen they shrink to 4 and 6 km. Taiwan's 1999 baselines left Kinmen and Matsu out, which officials described in 2009 as a technical omission. Taiwan cannot join UNCLOS, as it is not a UN member.</dd>\n        <dt>Beijing's position</dt>\n        <dd>The PRC, a party to UNCLOS, treats Kinmen as part of China and has never recognised the zones. Its 1996 straight baselines are reported to enclose Kinmen and Matsu. Since February 2024 its coast guard has run regular \"law enforcement patrols\" in Xiamen–Kinmen waters, and in December 2025 a spokesperson again rejected the idea of restricted waters.</dd>\n        <dt>What the map shows</dt>\n        <dd>About 23 km² of the restricted zone (roughly 4% of its water area), including about 9 km² of the prohibited zone, lies on the mainland side of the computed equidistance line: south-west of Dadan and Erdan, and east towards Dadeng and Weitou. Most of the zone sits well inside the line.</dd>\n        <dt>Limits of this analysis</dt>\n        <dd>The line uses 2017 OpenStreetMap coasts, not surveyed low-water lines; it ignores low-tide elevations and China's straight baselines; small islets such as Beiding are missing. Treat it as indicative. UNCLOS cannot settle the underlying question, because each side's claim depends on who has sovereignty, which is political.</dd>\n      </dl>"
+ },
+ {
+  "case": "kinmen",
+  "title": "Infrastructure · not yet plotted",
+  "html": "<p class=\"finding\">Plotted only where coordinates come from a citable source. Still pending: Liaoluo port (Kinmen's main cargo port) and the Mashan observation post, which have no published coordinates; Xiamen Xiang'an airport, whose published coordinates fail a cross-check by about 40 km; and the Kinmen landing of the 16.7 km Jinjiang–Kinmen water pipeline (supplying since August 2018). PLA installations are not plotted: no reliable public locations yet.</p>"
+ },
+ {
+  "case": "matsu",
+  "title": "Research finding · Matsu zones",
+  "html": "<p class=\"finding\">Matsu's prohibited and restricted waters were set by the Ministry of National Defense on 7 October 1992 and narrowed on 24 June 1998, so that the zones around Nangan and Juguang run <strong>4–6 km</strong> out from the coast. Unlike Kinmen, no map with corner coordinates has been found, so the zones are <strong>not drawn</strong> rather than guessed. The official layer is on the Interior Ministry's ocean data platform.</p>"
+ },
+ {
+  "case": "matsu",
+  "title": "Incident · cables cut, 2023",
+  "html": "<p class=\"finding\">On 2 and 8 February 2023 both cables linking Matsu to Taiwan were damaged, the first by a Chinese fishing boat and the second by a Chinese cargo ship's anchor. Matsu's roughly 13,000 residents had limited internet for about 50 days; the first cable was repaired on 31 March. Neither cable appears in OpenStreetMap.</p>"
+ },
+ {
+  "case": "matsu",
+  "title": "International law",
+  "html": "<dl class=\"defs\">\n        <dt>Geography</dt>\n        <dd>The Huangqi ferry crosses about 8 km of sea between Matsu and the mainland; Dongyin, the northernmost island, lies about 19 km off. As at Kinmen, neither side can have a full 12 nm territorial sea, so UNCLOS Article 15's equidistance default applies absent agreement.</dd>\n        <dt>Taiwan's position</dt>\n        <dd>Matsu is outside Taiwan's 1999 baselines, like Kinmen, and is covered instead by the Cross-Strait Act's prohibited and restricted waters.</dd>\n        <dt>Beijing's position</dt>\n        <dd>China's 1996 straight baselines are reported to enclose Matsu. In October 2024, coast guard ships entered Matsu's restricted waters during PLA exercises simulating a blockade of Taiwan.</dd>\n        <dt>What the map shows</dt>\n        <dd>The computed equidistance line runs west of Nangan and Juguang and north of Dongyin, leaving the archipelago a wide belt on the open-sea side. Without official zone geometry, the overlap measured at Kinmen cannot be measured here yet.</dd>\n        <dt>Limits of this analysis</dt>\n        <dd>Same as Kinmen: 2017 OpenStreetMap coasts, no low-tide elevations or Chinese baselines; the mainland beyond the detail area uses coarser coastline.</dd>\n      </dl>"
+ },
+ {
+  "case": "matsu",
+  "title": "Infrastructure · not yet plotted",
+  "html": "<p class=\"finding\">Fuao Harbor on Nangan (ferries to Keelung and Mawei), the Beigan pier for the Huangqi ferry and Zhongzhu Harbor on Dongyin have no published coordinates. The Matsu Defense Command headquarters is not plotted.</p>"
+ },
+ {
+  "case": "penghu",
+  "title": "Research finding · Penghu zones",
+  "html": "<p class=\"finding\">Penghu is the opposite case to Kinmen and Matsu. It sits <strong>inside Taiwan's straight baselines</strong>, which run from Datan on Taiwan's west coast to Wenggong Rock (T7–T8, about 205 km) and from Qimei to Liuqiu Islet (T13–T14, about 136 km). Since a defence ministry notice effective 1 June 2018, its prohibited waters coincide with the 12 nm territorial sea and its restricted waters with the 24 nm contiguous zone, so the blue zones on the map are Penghu's zones.</p>"
+ },
+ {
+  "case": "penghu",
+  "title": "Incident · cable cut, 2025",
+  "html": "<p class=\"finding\">In February 2025 the Taiwan–Penghu No. 3 cable was severed about 5 nm off Tainan's Beimen coast, inside a no-anchoring zone. The Togo-flagged Hong Tai 58 had lingered there from 22 to 25 February. On 12 June 2025 the Tainan District Court sentenced its Chinese captain to three years in prison.</p>"
+ },
+ {
+  "case": "penghu",
+  "title": "International law",
+  "html": "<dl class=\"defs\">\n        <dt>Geography</dt>\n        <dd>The mainland is well over 100 km away, so Article 15's equidistance rule never comes into play: Penghu has room for a full 12 nm territorial sea and 24 nm contiguous zone.</dd>\n        <dt>The baseline question</dt>\n        <dd>UNCLOS Article 7 allows straight baselines only where a coast is deeply indented or fringed with islands, and they must follow the coast's general direction. Segments of about 205 and 136 km joining Taiwan to Penghu go well beyond typical practice, which makes the system open to challenge. The US State Department reviewed Taiwan's maritime claims in Limits in the Seas No. 127.</dd>\n        <dt>Beijing's position</dt>\n        <dd>Beijing treats Taiwan, Penghu, Kinmen and Matsu alike as part of China, and does not recognise the ROC's baselines or zones.</dd>\n      </dl>"
+ },
+ {
+  "case": "penghu",
+  "title": "Infrastructure · not yet plotted",
+  "html": "<p class=\"finding\">Magong naval base, home port of ROC Navy units, has no published coordinates yet. Wang-an Airport is not yet sourced.</p>"
+ },
+ {
+  "case": "strait",
+  "title": "Whole strait",
+  "html": "<p class=\"finding\">Strait-wide layers: the median line, Taiwan's ADIZ, its territorial sea and contiguous zone, depth bands and submarine cables. Pick a tab above for the Kinmen, Matsu and Penghu case studies.</p>"
+ },
+ {
+  "case": "strait",
+  "title": "Research finding · baselines and cables",
+  "html": "<p class=\"finding\">Taiwan's territorial sea is now drawn from the <strong>22 official base points</strong> of the 1999 notice (amended 2009). Its straight baselines wrap Penghu into one system with Taiwan, so the 12 nm belt reaches well into the strait on the Penghu side. Every mainland base point sits within about 1 km of the mapped coast, which confirms the transcription; the islet points (Pengjia, Mianhua, Lesser Orchid) are missing from the 100 m land data, not misplaced.</p>\n      <p class=\"finding\">Only one cable touching Kinmen is mapped in OpenStreetMap: the Taiwan–Kinmen No. 2 cable (TK-2), and only its Kinmen end. The Taiwan–Matsu cables are not mapped at all. Open cable data around the frontline islands is thin, which is itself a finding for the methodology page.</p>"
+ },
+ {
+  "case": "all",
+  "title": "Phase 1 · not yet available",
+  "html": "<dl class=\"defs\">\n        <dt>Matsu prohibited and restricted waters</dt>\n        <dd>No published coordinates; the official layer sits on the Interior Ministry's ocean data platform, which blocks automated access.</dd>\n        <dt>Shipping lanes</dt>\n        <dd>No official lanes exist here. They will be derived from real traffic density in Phase 5.</dd>\n      </dl>"
+ },
+ {
+  "case": "all",
+  "title": "Modules",
+  "html": "<ul class=\"modules\">\n        <li><span>Chart basemap &amp; study area</span><span class=\"tag live\">● live</span></li>\n        <li><span>Strait median line</span><span class=\"tag live\">● live</span></li>\n        <li><span>Kinmen maritime zones</span><span class=\"tag live\">● live</span></li>\n        <li><span>International law layer</span><span class=\"tag live\">● live</span></li>\n        <li><span>Key infrastructure</span><span class=\"tag live\">● partial</span></li>\n        <li><span>Commercial traffic trends</span><span class=\"tag\">next</span></li>\n        <li><span>Live vessel positions</span><span class=\"tag\">planned</span></li>\n        <li><span>Coast guard incident log<small style=\"display:block;color:var(--ink-soft);font-size:11.5px\">Baseline: AMTI counted 2,012 coast guard entries into the Kinmen and Matsu zones, May 2020 to Sept 2024</small></span><span class=\"tag\">planned</span></li>\n        <li><span>Dark-vessel radar detections</span><span class=\"tag\">planned</span></li>\n      </ul>"
+ }
+]

@@ -1,0 +1,1 @@
+{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Taiwan ADIZ","source":"AIP Taipei FIR ENR 1.12-1, AMDT 02/20 (7 May 2020)","vertices":"2100N 11730E - 2100N 12130E - 2230N 12300E - 2900N 12300E - 2900N 11730E"},"geometry":{"type":"Polygon","coordinates":[[[117.5,21.0],[121.5,21.0],[123.0,22.5],[123.0,29.0],[117.5,29.0],[117.5,21.0]]]}}]}

@@ -1,0 +1,137 @@
+{
+  "updated": "2026-11-22",
+  "layers": [
+    {
+      "id": "land",
+      "name": "Land outlines",
+      "source": "OpenStreetMap land polygons, packaged by geo-maps (earth-lands-100m v0.6.0)",
+      "url": "https://github.com/simonepri/geo-maps",
+      "retrieved": "2026-11-22",
+      "licence": "ODbL 1.0 (data), MIT (packaging)",
+      "processing": "Clipped to the strait (simplified to ~600 m) with high-detail boxes for Kinmen, Matsu and Penghu (~20 m) cut out of it so they never overlap; inland lakes removed; coastlines exclude clipping edges; tools/build_land.py.",
+      "limitations": "2017 snapshot at 100 m resolution. Land reclaimed since 2017, notably around Xiamen, is not shown."
+    },
+    {
+      "id": "aoi",
+      "name": "Study areas (Kinmen, Matsu, Penghu)",
+      "source": "Defined by the author for this project",
+      "url": null,
+      "retrieved": "2026-11-22",
+      "licence": "n/a",
+      "processing": "Rectangles: Kinmen 117.95–118.60°E 24.30–24.65°N; Matsu 119.80–120.56°E 25.90–26.42°N; Penghu 119.28–119.75°E 23.15–23.80°N.",
+      "limitations": "Not an official boundary. It includes Xiamen's port approaches, so Xiamen traffic will dominate unsplit counts."
+    },
+    {
+      "id": "median",
+      "name": "Strait median line",
+      "source": "Taiwan Ministry of National Defense, statement of 2019 (matching its 2004 statement), as reported by Taiwan News",
+      "url": "https://militaryanalysis.blogspot.com/2022/08/median.html",
+      "retrieved": "2026-11-22",
+      "licence": "Factual coordinates",
+      "processing": "Straight line between the two published endpoints, 27°N 122°E and 23°N 118°E.",
+      "limitations": "Contested. Beijing has never recognised the line and its foreign ministry denied it exists in 2020."
+    },
+    {
+      "id": "baselines",
+      "name": "Taiwan baselines, territorial sea and contiguous zone",
+      "source": "Executive Yuan notice 台88內字第06161號 (10 Feb 1999), amended 院臺建字第0980097355號 (18 Nov 2009): first batch of territorial sea baselines",
+      "url": "https://www.penghu-land.gov.tw/warehouse/%7B55246BE4-52DA-4E37-8D57-5A81290E0C58%7D/20091118.pdf",
+      "retrieved": "2026-11-22",
+      "licence": "Official government notice",
+      "processing": "22 Taiwan and Penghu base points and 4 Dongsha points (WGS-84) transcribed from the notice; baselines joined in order; 12 and 24 nm buffers in an azimuthal equidistant projection; tools/build_baselines.py. Mainland points checked against the coast (all within ~1 km).",
+      "limitations": "The short normal-baseline segment at Pengjia Islet (T3–T4) is drawn as a straight line. Diaoyutai and the Spratly baselines are not drawn. Kinmen and Matsu have no baselines in this notice."
+    },
+    {
+      "id": "cables",
+      "name": "Submarine cables",
+      "source": "OpenStreetMap, via an Overpass query exported 22 Nov 2026",
+      "url": "https://www.openstreetmap.org/",
+      "retrieved": "2026-11-22",
+      "licence": "ODbL 1.0",
+      "processing": "Ways tagged as submarine communication or power cables in 21–28°N, 116–123°E; simplified to about 50 m.",
+      "limitations": "Volunteer-mapped and incomplete: only 14 cable segments, several unnamed; the Taiwan–Matsu cables are absent and TK-2 is mapped only near Kinmen. TeleGeography's fuller dataset requires a licence."
+    },
+    {
+      "id": "adiz",
+      "name": "Taiwan ADIZ",
+      "source": "Aeronautical Information Publication, Taipei FIR, ENR 1.12-1, AMDT 02/20 (7 May 2020), Civil Aeronautics Administration",
+      "url": "https://ops.group/blog/wp-content/uploads/2021/10/Taiwan-AIP-ADIZ.pdf",
+      "retrieved": "2026-11-22",
+      "licence": "Official publication; factual coordinates",
+      "processing": "Polygon through the five published vertices: 21°N 117°30′E, 21°N 121°30′E, 22°30′N 123°E, 29°N 123°E, 29°N 117°30′E.",
+      "limitations": "Copy of the AIP page hosted by a third party (OPSGROUP); check against the current eAIP. An ADIZ is an air-identification procedure, not a claim of sovereign airspace. Some commentary wrongly says its western edge follows the median line."
+    },
+    {
+      "id": "bathymetry",
+      "name": "Depth bands",
+      "source": "Natural Earth 10m bathymetry (200–4,000 m bands)",
+      "url": "https://github.com/nvkelso/natural-earth-vector",
+      "retrieved": "2026-11-22",
+      "licence": "Public domain",
+      "processing": "Bands clipped to 112–128°E, 18–31°N and simplified to about 1 km; tools/build_bathymetry.py.",
+      "limitations": "Small-scale data: it shows the shelf edge but not depth variation inside the strait (e.g. the Taiwan Banks). GEBCO would add that detail."
+    },
+    {
+      "id": "kinmen-zones",
+      "name": "Kinmen prohibited and restricted waters",
+      "source": "Mainland Affairs Council map of Kinmen restricted and prohibited waters, drawn from MND notice 猛獅字第0930001493號 (7 June 2004, in force 15 June 2004)",
+      "url": "https://ws.mac.gov.tw/001/Upload/OldFile/public/Attachment/0411459536.pdf",
+      "retrieved": "2026-11-22",
+      "licence": "Official government notice",
+      "processing": "27 corner coordinates read from the official map at 400 dpi and cross-checked against their plotted positions (all within a few hundred metres). Point 2's label is clipped; its seconds are a midpoint estimate (±150 m).",
+      "limitations": "Digitised from a scanned 2010 PDF of the map. The legal text defines the zones as distances from the low-water line; the map's corner points are the official rendering of that text.",
+      "reference_map": null,
+      "legal_text": "https://www.nlma.gov.tw/filesys/file/chinese/new5/0930001493.pdf"
+    },
+    {
+      "id": "equidistance",
+      "name": "Equidistance lines, Kinmen and Matsu (computed)",
+      "source": "Computed by the author from the land outlines, following the UNCLOS Article 15 default for opposite coasts under 24 nm apart",
+      "url": null,
+      "retrieved": "2026-11-22",
+      "licence": "Derived from ODbL data",
+      "processing": "Kinmen: coast of land touching the official zones, plus Erdan Island from its published coordinates. Matsu: islands near the archipelago's main islands (Wikipedia coordinates for Nangan, Beigan, Juguang, Dongyin, Liang), against the surrounding mainland coast. Coasts sampled every 150 m; boundary between Voronoi regions; tools/build_zones.py.",
+      "limitations": "Indicative only: 2017 OSM coasts, not surveyed low-water lines; low-tide elevations, China's straight baselines and small islets such as Beiding are not included."
+    },
+    {
+      "id": "infrastructure",
+      "name": "Key infrastructure",
+      "source": "Coordinates from each site's Wikipedia infobox (linked per site)",
+      "url": "https://en.wikipedia.org/wiki/Kinmen_Airport",
+      "retrieved": "2026-11-22",
+      "licence": "CC BY-SA (text); factual coordinates",
+      "processing": "Only sites with a published coordinate are plotted: 7 around Kinmen, 3 in Matsu, 4 in Penghu.",
+      "limitations": "Wikipedia coordinates are secondary; Xiang'an airport's failed a cross-check and is excluded. Sources differ on troop presence on Dadan. No PLA installations plotted."
+    },
+    {
+      "id": "law",
+      "name": "International law notes",
+      "source": "AMTI/CSIS (Sato, 6 Dec 2024); Taipei Times (24 Nov 2009); Global Times (Dec 2025); UNCLOS Arts. 3, 5 and 15",
+      "url": "https://amti.csis.org/a-new-normal-for-the-china-coast-guard-at-kinmen-and-matsu/",
+      "retrieved": "2026-11-22",
+      "licence": "Cited, not reproduced",
+      "processing": "Summarised in the author's words.",
+      "limitations": "Taiwan's baseline status is reported as of 2009; check for later changes."
+    },
+    {
+      "id": "incidents",
+      "name": "Cable incidents (Matsu 2023, Penghu 2025)",
+      "source": "The Diplomat (April 2023) on the Matsu cables; CNA via GlobalSecurity (12 June 2025) on the Hong Tai 58 case",
+      "url": "https://thediplomat.com/2023/04/after-chinese-vessels-cut-matsu-internet-cables-taiwan-shows-its-communications-resilience",
+      "retrieved": "2026-11-22",
+      "licence": "Cited, not reproduced",
+      "processing": "Summarised in the author's words.",
+      "limitations": "Incident locations are described in the sources, not given as coordinates, so they are not plotted."
+    },
+    {
+      "id": "military",
+      "name": "Military balance (Balance tab)",
+      "source": "US DoD 2022 report (Appendix I) for force counts; DoD 2024 report and IISS Military Balance 2024 for personnel, reserves and coast guards; Defense News (Mar 2026) and CNA (Aug 2025) for 2026 budgets",
+      "url": "https://navyleaguehonolulu.org/maritime-security/ewExternalFiles/2022-military-and-security-developments-involving-the-peoples-republic-of-china.pdf",
+      "retrieved": "2026-11-22",
+      "licence": "Cited figures",
+      "processing": "18 metrics in data/military.json, each with source, year, definition and caveat; 'facing Taiwan' uses the Eastern and Southern Theaters where the DoD gives them.",
+      "limitations": "Force counts date from 2022: the 2024 and 2025 DoD reports could not be retrieved, and Chinese numbers have grown since (e.g. a third carrier). Definitions differ between sources; no figure is estimated or interpolated."
+    }
+  ]
+}
