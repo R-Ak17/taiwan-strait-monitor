@@ -24,7 +24,7 @@
     --sea: #ecf2f6;  --deep: #9fbcd1;  --land: #e8dfc6;  --coast: #7a7259;
     --ink: #142233;  --ink-soft: #5a6573;  --rule: #dfe4ea;  --panel: #ffffff;  --panel-2: #f6f8fa;
     --roc: #1d4f7a;  --prc: #b3261e;
-    --aoi: #1d4f7a;  --limit: #a3166f;  --ts: #2e6e8e;  --cable: #6b4fa0;  --beyond: #e08a1e;  --alert: #b3361f;
+    --aoi: #1d4f7a;  --limit: #a3166f;  --ts: #2e6e8e;  --cable: #6b4fa0;  --beyond: #e08a1e;  --alert: #b3361f;  --other: #6b7785;  --live: #1f8a4c;
     --shadow: 0 10px 30px rgba(14, 28, 45, 0.14);
     --radius: 10px;
     --serif: 'Newsreader', Georgia, 'Times New Roman', serif;
@@ -36,7 +36,7 @@
       --sea: #0e1923; --deep: #02070c; --land: #2a2a22; --coast: #9a927a;
       --ink: #e3e8ed; --ink-soft: #9ba6b2; --rule: #253140; --panel: #131c26; --panel-2: #18232f;
       --roc: #6aa6dc; --prc: #ef6b5f;
-      --aoi: #6fa6d6; --limit: #e46bb4; --ts: #7fb6d1; --cable: #b9a2e0; --beyond: #f0a54a; --alert: #e0664f;
+      --aoi: #6fa6d6; --limit: #e46bb4; --ts: #7fb6d1; --cable: #b9a2e0; --beyond: #f0a54a; --alert: #e0664f; --other: #8e99a6; --live: #4cc283;
       --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
       color-scheme: dark;
     }
@@ -45,7 +45,7 @@
     --sea: #0e1923; --deep: #02070c; --land: #2a2a22; --coast: #9a927a;
     --ink: #e3e8ed; --ink-soft: #9ba6b2; --rule: #253140; --panel: #131c26; --panel-2: #18232f;
     --roc: #6aa6dc; --prc: #ef6b5f;
-    --aoi: #6fa6d6; --limit: #e46bb4; --ts: #7fb6d1; --cable: #b9a2e0; --beyond: #f0a54a; --alert: #e0664f;
+    --aoi: #6fa6d6; --limit: #e46bb4; --ts: #7fb6d1; --cable: #b9a2e0; --beyond: #f0a54a; --alert: #e0664f; --other: #8e99a6; --live: #4cc283;
     --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
     color-scheme: dark;
   }
@@ -130,6 +130,17 @@
   }
   .actions button:hover, .actions button[aria-expanded="true"] { background: var(--panel-2); }
   .count { font: 500 11px var(--mono); color: var(--ink-soft); }
+  .status {
+    display: inline-flex; align-items: center; gap: 8px; justify-self: start; max-width: 100%; padding: 5px 10px 5px 8px;
+    border: 0; border-radius: 999px; background: var(--panel-2); color: var(--ink-soft); font: 500 11.5px var(--mono); cursor: pointer;
+  }
+  .status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-soft); flex: none; }
+  .status.live .dot { background: var(--live); box-shadow: 0 0 0 3px color-mix(in srgb, var(--live) 25%, transparent); }
+  .status.stale .dot { background: var(--beyond); }
+  .status span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stat-grid { display: grid; grid-template-columns: 1fr repeat(4, auto); gap: 4px 14px; font-size: 13px; font-variant-numeric: tabular-nums; }
+  .stat-grid .h { font: 500 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+  .stat-grid .n { text-align: right; font-family: var(--mono); }
 
   /* ---------- Layer drawer ---------- */
   #drawer {
@@ -296,6 +307,7 @@
     <button data-view="strait" aria-pressed="false">Strait</button>
     <button data-view="balance" aria-pressed="false">Balance</button>
   </nav>
+  <button class="status" id="ais-status" aria-label="Live AIS status"><span class="dot"></span><span id="ais-text">Live AIS: checking…</span></button>
   <div class="actions">
     <button id="btn-layers" aria-expanded="false" aria-controls="drawer">Layers <span class="count" id="layer-count"></span></button>
     <button id="btn-notes" aria-expanded="false" aria-controls="sheet">Notes <span class="count" id="note-count"></span></button>
@@ -367,15 +379,17 @@
         info: ['Depth bands', '200, 1,000, 2,000, 3,000 and 4,000 m (Natural Earth). Almost the whole strait is shallower than 200 m.'] },
       { id: 'cables', label: 'Cables', sw: '--cable', line: true, ids: ['cables-line', 'cables-hit'],
         info: ['Submarine cables', 'OpenStreetMap, exported Nov 2026. Incomplete: mapped cables only. Tap a cable.'] },
+      { id: 'ships', label: 'Live ships', sw: '--other', ids: ['ais-heading', 'ais-ships'],
+        info: ['Live ships (AIS)', 'Vessel positions from AISStream, refreshed about every 15 minutes. Navy: Taiwan-flagged; red: PRC-flagged; grey: all other flags (including Hong Kong and flags of convenience). A short line shows course for moving ships. Many military and coast guard ships do not broadcast AIS, so absence on this layer proves nothing. Tap a ship.'] },
       { id: 'aoi', label: 'Study areas', sw: '--aoi', line: true, ids: ['aoi-fill', 'aoi-line'],
         info: ['Study areas', 'Author-defined analytical boxes for Kinmen, Matsu and Penghu, not official boundaries'] }
     ];
     // Each tab switches on the layers that tell its story; the drawer can override.
     const DEFAULTS = {
-      kinmen: ['zones', 'eq', 'infra'],
-      matsu: ['eq', 'infra'],
-      penghu: ['ts', 'infra'],
-      strait: ['median', 'adiz', 'ts', 'bathy', 'cables', 'infra'],
+      kinmen: ['zones', 'eq', 'infra', 'ships'],
+      matsu: ['eq', 'infra', 'ships'],
+      penghu: ['ts', 'infra', 'ships'],
+      strait: ['median', 'adiz', 'ts', 'bathy', 'cables', 'infra', 'ships'],
       balance: ['median', 'adiz', 'ts', 'infra']
     };
     const on = new Set();
@@ -417,7 +431,7 @@
     map.on('load', () => {
       const src = (id, data) => map.addSource(id, { type: 'geojson', data: data || empty });
       ['bathy', 'baselines', 'land-strait', 'land-kinmen', 'land-matsu', 'land-penghu', 'coast-strait', 'coast-kinmen', 'coast-matsu',
-       'coast-penghu', 'zones', 'eq', 'adiz', 'cables'].forEach((id) => src(id));
+       'coast-penghu', 'zones', 'eq', 'adiz', 'cables', 'ais', 'ais-heading'].forEach((id) => src(id));
       src('aoi', AOI); src('median', MEDIAN);
       const L = (spec) => map.addLayer(spec);
       const isKind = (k) => ['==', ['get', 'kind'], k];
@@ -448,6 +462,10 @@
       L({ id: 'aoi-fill', type: 'fill', source: 'aoi', paint: { 'fill-opacity': 0.03 } });
       L({ id: 'aoi-line', type: 'line', source: 'aoi', paint: { 'line-width': 1.2, 'line-dasharray': [3, 2], 'line-opacity': 0.7 } });
       L({ id: 'median-line', type: 'line', source: 'median', paint: { 'line-width': 1.5, 'line-dasharray': [5, 3] } });
+      // Live ships: a course line for moving vessels, then the vessel dot on top.
+      L({ id: 'ais-heading', type: 'line', source: 'ais-heading', paint: { 'line-width': 1.4, 'line-opacity': 0.8 } });
+      L({ id: 'ais-ships', type: 'circle', source: 'ais',
+          paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 5, 1.8, 9, 3.6, 13, 6], 'circle-stroke-width': 1, 'circle-opacity': 0.92 } });
       L({ id: 'vertices', type: 'circle', source: 'zones', filter: isZone('vertex'), minzoom: 9,
           paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 2.5, 13, 5], 'circle-stroke-width': 1.2 } });
       L({ id: 'basepoints', type: 'circle', source: 'baselines', filter: isKind('basepoint'), minzoom: 6,
@@ -463,6 +481,7 @@
       [['zones', 'zones'], ['eq', 'equidistance'], ['bathy', 'bathymetry'], ['adiz', 'adiz'], ['baselines', 'baselines'], ['cables', 'cables']]
         .forEach(([id, f]) => load(`data/${f}.json`).then((d) => set(id, d)).catch((e) => showError(e.message)));
       load('data/infrastructure.json').then(addInfrastructure).catch((e) => showError(e.message));
+      startAis();
       addLabels();
       updateZoomClass();
     });
@@ -478,10 +497,13 @@
       ['cables-line', 'line-color', '--cable'], ['adiz-line', 'line-color', '--ink-soft'],
       ['aoi-fill', 'fill-color', '--aoi'], ['aoi-line', 'line-color', '--aoi'], ['median-line', 'line-color', '--limit'],
       ['vertices', 'circle-color', '--panel'], ['vertices', 'circle-stroke-color', '--limit'],
-      ['basepoints', 'circle-color', '--panel'], ['basepoints', 'circle-stroke-color', '--ts']
+      ['basepoints', 'circle-color', '--panel'], ['basepoints', 'circle-stroke-color', '--ts'], ['ais-ships', 'circle-stroke-color', '--panel']
     ];
+    // Ships are coloured by flag with an expression, rebuilt from the tokens for each theme.
+    const bySide = () => ['match', ['get', 'side'], 'taiwan', css('--roc'), 'prc', css('--prc'), css('--other')];
     function applyColours() {
       for (const [layer, prop, token] of PAINT) if (map.getLayer(layer)) map.setPaintProperty(layer, prop, css(token));
+      if (map.getLayer('ais-ships')) { map.setPaintProperty('ais-ships', 'circle-color', bySide()); map.setPaintProperty('ais-heading', 'line-color', bySide()); }
     }
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyColours);
     new MutationObserver(applyColours).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
@@ -557,7 +579,8 @@
     let NOTES = [], SOURCES = null;
     const plain = (html) => { const t = el('div'); t.innerHTML = html; return t.textContent.replace(/\s+/g, ' ').trim(); };
     const notesFor = (v) => NOTES.filter((n) => n.case === (v === 'balance' ? 'strait' : v));
-    function updateNoteCount() { $('note-count').textContent = NOTES.length ? notesFor(current).length + 3 : ''; }
+    // Cards in the Notes list: this tab's notes, the project notes, plus 'Sources & caveats' and 'Military balance data'.
+    function updateNoteCount() { $('note-count').textContent = NOTES.length ? notesFor(current).length + NOTES.filter((n) => n.case === 'all').length + 2 : ''; }
     load('data/notes.json').then((d) => { NOTES = d; updateNoteCount(); }).catch((e) => showError(e.message));
     load('data/sources.json').then((d) => { SOURCES = d; }).catch((e) => showError(e.message));
 
@@ -645,7 +668,85 @@
         p.source && p.source !== 'null' ? `Mapped from: ${p.source}.` : 'No source recorded in OpenStreetMap.'].filter(Boolean).join(' ');
       featureSheet('Submarine cable', p.name, `OpenStreetMap ${p.osm}`, [linkP(bits, 'https://www.openstreetmap.org/' + p.osm, 'View in OpenStreetMap')]);
     });
-    for (const id of ['vertices', 'basepoints', 'cables-hit']) {
+    // ---------- Live AIS (Phase 2) ----------
+    // The snapshot is written every ~15 minutes by a scheduled job (tools/ais_collect.py) to the
+    // repository's ais-data branch; data/config.json says where that is. No key ever reaches the browser.
+    let AIS = { base: '', summary: null, error: null };
+    const parseUtc = (s) => { if (!s) return null; const m = String(s).match(/(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}:\d{2})/); return m ? new Date(m[1] + 'T' + m[2] + 'Z') : null; };
+    const ago = (d) => { if (!d) return 'unknown'; const m = Math.round((Date.now() - d.getTime()) / 60000); return m < 1 ? 'just now' : m < 90 ? m + ' min ago' : Math.round(m / 60) + ' h ago'; };
+    function headingLines(fc) {
+      // ~1.5 km course tick for ships moving faster than 0.5 knots.
+      const feats = [];
+      for (const f of fc.features) {
+        const p = f.properties; if (p.sog == null || p.sog < 0.5 || p.cog == null) continue;
+        const [lon, lat] = f.geometry.coordinates, d = 0.0135, r = p.cog * Math.PI / 180;
+        feats.push({ type: 'Feature', properties: { side: p.side },
+          geometry: { type: 'LineString', coordinates: [[lon, lat], [lon + d * Math.sin(r) / Math.cos(lat * Math.PI / 180), lat + d * Math.cos(r)]] } });
+      }
+      return { type: 'FeatureCollection', features: feats };
+    }
+    function setStatus(cls, text) { const b = $('ais-status'); b.classList.remove('live', 'stale'); if (cls) b.classList.add(cls); $('ais-text').textContent = text; }
+    function refreshAis() {
+      if (!AIS.base) return;
+      Promise.all([fetch(AIS.base + 'latest.geojson', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('snapshot ' + r.status); return r.json(); }),
+                   fetch(AIS.base + 'summary.json', { cache: 'no-store' }).then((r) => r.ok ? r.json() : null)])
+        .then(([fc, sum]) => {
+          AIS.summary = sum; AIS.error = null;
+          map.getSource('ais').setData(fc); map.getSource('ais-heading').setData(headingLines(fc));
+          const when = parseUtc(fc.generated_utc || (sum && sum.generated_utc));
+          const mins = when ? (Date.now() - when.getTime()) / 60000 : 999;
+          setStatus(mins <= 45 ? 'live' : 'stale', `Live AIS · ${fc.features.length.toLocaleString('en-GB')} vessels · ${ago(when)}`);
+        })
+        .catch((e) => { AIS.error = e.message; setStatus(null, 'Live AIS: snapshot unavailable'); });
+    }
+    function startAis() {
+      load('data/config.json').then((c) => {
+        AIS.base = (c && c.ais_base_url) || '';
+        if (!AIS.base) { setStatus(null, 'Live AIS: not connected yet'); return; }
+        if (!AIS.base.endsWith('/')) AIS.base += '/';
+        refreshAis();
+        setInterval(refreshAis, 5 * 60 * 1000);   // the snapshot itself changes about every 15 minutes
+      }).catch(() => setStatus(null, 'Live AIS: not connected yet'));
+    }
+    const SIDE_NAME = { taiwan: 'Taiwan-flagged', prc: 'PRC-flagged', other: 'Other flags' };
+    function aisSheet() {
+      const wrap = el('div', 'prose');
+      wrap.append(el('h2', null, 'Live AIS'));
+      const s = AIS.summary;
+      if (!AIS.base) {
+        wrap.append(el('p', null, 'The live layer is built, but no data source is connected yet. Once the scheduled collector runs on the public site, ships appear here and refresh about every 15 minutes. Setup steps are in the README.'));
+      } else if (!s) {
+        wrap.append(el('p', null, 'The snapshot could not be loaded' + (AIS.error ? ` (${AIS.error})` : '') + '. The collector may not have run yet, or GitHub may be slow to serve the file.'));
+      } else {
+        wrap.append(el('p', 'meta', `Snapshot ${s.generated_utc} · ${s.window_seconds} s listening window · ${s.messages.toLocaleString('en-GB')} messages`));
+        const g = el('div', 'stat-grid');
+        ['Area', 'All', 'Taiwan', 'PRC', 'Other'].forEach((h) => g.append(el('span', 'h' + (h === 'Area' ? '' : ' n'), h)));
+        for (const [a, label] of [['kinmen', 'Kinmen'], ['matsu', 'Matsu'], ['penghu', 'Penghu'], ['strait', 'Rest of strait']]) {
+          const c = s.areas[a] || { vessels: 0, by_side: {} };
+          g.append(el('span', null, label), el('span', 'n', c.vessels), el('span', 'n', c.by_side.taiwan || 0), el('span', 'n', c.by_side.prc || 0), el('span', 'n', c.by_side.other || 0));
+        }
+        wrap.append(g);
+      }
+      wrap.append(el('p', null, ''), el('p', null, 'How it works: every 15 minutes a scheduled job listens to AISStream for three minutes, keeps each vessel’s latest position and publishes a snapshot. AISStream relies on volunteer shore receivers, so coverage has gaps, and ships can switch AIS off or broadcast false identities. Military and many coast guard vessels usually do not appear.'));
+      const more = NOTES.find((n) => n.title.startsWith('Live AIS'));
+      if (more) { const b = el('button', 'card'); b.append(el('span', 't', 'Method and limits'), el('span', 'chev', '›'), el('span', 's', 'Full note')); b.onclick = () => noteDetail(more); wrap.append(b); }
+      openSheet('Live AIS', wrap, null);
+    }
+    $('ais-status').onclick = aisSheet;
+    map.on('click', 'ais-ships', (e) => {
+      const p = e.features[0].properties, [lng, lat] = e.features[0].geometry.coordinates;
+      const val = (x) => (x === null || x === undefined || x === 'null' ? null : x);
+      const t = parseUtc(val(p.time_utc));
+      const rows = [
+        `${SIDE_NAME[p.side] || 'Other flags'}: ${p.flag}. Type: ${p.category}${val(p.type_code) != null ? ' (AIS code ' + p.type_code + ')' : ''}.`,
+        `Speed ${val(p.sog) != null ? p.sog + ' kn' : 'not reported'}; course ${val(p.cog) != null ? p.cog + '°' : 'not reported'}${val(p.nav) ? '; ' + p.nav : ''}.`,
+        `Last report ${t ? t.toISOString().slice(0, 16).replace('T', ' ') + ' UTC (' + ago(t) + ')' : 'time unknown'}; Class ${p.class} transponder${val(p.length_m) ? '; about ' + p.length_m + ' m long' : ''}${val(p.destination) ? '; destination given as “' + p.destination + '”' : ''}.`
+      ];
+      featureSheet('Live ship (AIS)', val(p.name) || 'Name not yet broadcast', `MMSI ${p.mmsi} · ${toDMS(lat, 'N', 'S')} ${toDMS(lng, 'E', 'W')}`,
+        rows.map((r) => el('p', null, r)).concat([linkP('AIS data is self-reported by the ship and can be wrong or spoofed.', 'https://www.marinetraffic.com/en/ais/details/ships/mmsi:' + p.mmsi, 'Look up on MarineTraffic')]));
+    });
+
+    for (const id of ['vertices', 'basepoints', 'cables-hit', 'ais-ships']) {
       map.on('mouseenter', id, () => { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', id, () => { map.getCanvas().style.cursor = ''; });
     }

@@ -47,6 +47,48 @@ Then open http://localhost:8000.
 branch" → `main` / root. The site appears at
 `https://<your-username>.github.io/taiwan-strait-monitor/`.
 
+## Phase 2: switch on the live AIS layer
+
+The site has a live ships layer, fed by a scheduled job that runs on GitHub for
+free. Until you finish these steps, the map says "Live AIS: not connected yet".
+
+1. **Get an AISStream API key.** Create a free account at aisstream.io and
+   create an API key. Keep it private: it must never go into the website's code.
+2. **Make the repository public** (Settings → General → Danger Zone → Change
+   visibility). Scheduled jobs are free on public repositories; on a private
+   one, this job would use up the monthly free minutes in about a week.
+3. **Add the key as a secret.** Repository → Settings → Secrets and variables →
+   Actions → New repository secret. Name: `AISSTREAM_API_KEY`. Value: your key.
+4. **Allow the job to write.** Settings → Actions → General → Workflow
+   permissions → "Read and write permissions" → Save.
+5. **Run it once by hand.** Actions tab → "AIS snapshot" → Run workflow. After
+   about four minutes a branch called `ais-data` appears, holding
+   `latest.geojson`, `summary.json`, `counts_history.csv` and `vessels_static.json`.
+6. **Point the site at it.** Edit `data/config.json`:
+   ```json
+   {"ais_base_url": "https://raw.githubusercontent.com/<your-username>/<your-repo>/ais-data/"}
+   ```
+   Commit. Vercel redeploys once, and the status pill turns green.
+
+From then on the job runs every 15 minutes (GitHub may delay or skip some runs
+at busy times). Only the `ais-data` branch changes, and it is replaced by a
+single fresh commit each run, so the repository does not grow and Vercel does
+not redeploy (its free plan allows 100 deployments a day).
+
+**Test the collector locally** (optional):
+```bash
+pip install -r requirements.txt
+AISSTREAM_API_KEY=your-key python3 tools/ais_collect.py --out ais-out --seconds 60
+```
+
+**Good to know**
+- GitHub pauses scheduled workflows in public repositories after 60 days without
+  repository activity; a commit to the main branch resets the clock.
+- The Claude-hosted version of the map cannot load outside data, so live ships
+  appear only on the public site.
+- AIS shows commercial and civilian traffic. Most military and many coast guard
+  vessels do not broadcast, so absence from the map proves nothing.
+
 ## Project structure
 
 ```
@@ -63,7 +105,9 @@ data/
   military.json       Balance tab: 18 metrics with source, year, definition, caveat
   notes.json          the research notes shown in the Notes pane
   sources.json        provenance, licence and limitations for every layer
-tools/                Python scripts that generate the data files
+  config.json         where the live AIS snapshot is published (set in Phase 2)
+tools/                Python scripts: data builders, and ais_collect.py (the live collector)
+.github/workflows/    ais.yml: the scheduled AIS job
 ```
 
 ## Rebuilding the data

@@ -132,6 +132,16 @@
       "licence": "Cited figures",
       "processing": "18 metrics in data/military.json, each with source, year, definition and caveat; 'facing Taiwan' uses the Eastern and Southern Theaters where the DoD gives them.",
       "limitations": "Force counts date from 2022: the 2024 and 2025 DoD reports could not be retrieved, and Chinese numbers have grown since (e.g. a third carrier). Definitions differ between sources; no figure is estimated or interpolated."
+    },
+    {
+      "id": "ais",
+      "name": "Live ships (AIS)",
+      "source": "AISStream WebSocket API (terrestrial AIS from volunteer receivers), collected by tools/ais_collect.py via a scheduled GitHub Actions workflow",
+      "url": "https://aisstream.io/documentation",
+      "retrieved": "live, about every 15 minutes",
+      "licence": "AISStream terms of service",
+      "processing": "3-minute listening window per run over 21.5–27.5°N, 116.5–122.5°E; latest position per MMSI; flag from MMSI digits; type from AIS ship-type codes; per-area counts appended to counts_history.csv.",
+      "limitations": "Uneven receiver coverage; self-reported and spoofable data; most military and many coast guard and militia vessels do not broadcast; scheduled runs can be delayed or skipped."
     }
   ]
 }
