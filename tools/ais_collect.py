@@ -173,7 +173,13 @@ def summarise(features, started, seconds, messages):
 
 async def stream(snapshot, key, seconds):
     import websockets   # pip install websockets
-    sub = {"APIKey": key, "BoundingBoxes": [STRAIT_BOX], "FilterMessageTypes": MESSAGE_TYPES}
+    box = STRAIT_BOX
+    test = os.environ.get("AIS_TEST_BOX", "").strip()   # e.g. "49,-6,52,2" = English Channel (lat,lon,lat,lon)
+    if test:
+        a, b, c, d = [float(x) for x in test.split(",")]
+        box = [[a, b], [c, d]]
+        print(f"TEST MODE: listening to box {box} instead of the strait", file=sys.stderr)
+    sub = {"APIKey": key.strip(), "BoundingBoxes": [box], "FilterMessageTypes": MESSAGE_TYPES}
     deadline = time.monotonic() + seconds
     attempts = 0
     while time.monotonic() < deadline and attempts < 4:
@@ -187,6 +193,9 @@ async def stream(snapshot, key, seconds):
                     except asyncio.TimeoutError:
                         break
                     msg = json.loads(raw)
+                    if snapshot.messages == 0 and not getattr(snapshot, "_shown", False):
+                        snapshot._shown = True
+                        print("first message received: " + str(raw)[:200], file=sys.stderr)
                     if "error" in msg:
                         raise RuntimeError("AISStream error: " + str(msg["error"]))
                     snapshot.handle(msg)
