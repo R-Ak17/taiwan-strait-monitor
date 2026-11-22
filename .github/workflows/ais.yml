@@ -1,16 +1,16 @@
-# Every 15 minutes: connect to AISStream for 3 minutes, then publish the snapshot to the
-# `ais-data` branch. The website reads that branch directly, so the main site never redeploys.
+# Once a day: ask Global Fishing Watch for the latest complete day of vessel presence in the strait,
+# then publish it to the `ais-data` branch. The website reads that branch directly, so the site never redeploys.
 name: AIS snapshot
 
 on:
   schedule:
-    - cron: "7,22,37,52 * * * *"   # every 15 min, away from the busy top of the hour
+    - cron: "17 6 * * *"            # 06:17 UTC daily; GFW data run about 4 days behind
   workflow_dispatch:                # lets you run it by hand from the Actions tab
     inputs:
-      test_box:
-        description: "Test only: lat,lon,lat,lon box (e.g. 49,-6,52,2 for the English Channel). Leave empty for the strait."
+      backfill:
+        description: "Also fill daily counts for this many past days (e.g. 60). Leave 0 normally."
         required: false
-        default: ""
+        default: "0"
 
 permissions:
   contents: write                   # needed to push the ais-data branch
@@ -22,7 +22,7 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -30,22 +30,17 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install the WebSocket library
-        run: pip install "websockets==15.0.1"
-
-      - name: Bring back the files that accumulate between runs
+      - name: Bring back the history file that accumulates between runs
         run: |
           mkdir -p ais-out
           if git fetch --depth=1 origin ais-data 2>/dev/null; then
-            git show FETCH_HEAD:vessels_static.json > ais-out/vessels_static.json 2>/dev/null || rm -f ais-out/vessels_static.json
-            git show FETCH_HEAD:counts_history.csv  > ais-out/counts_history.csv  2>/dev/null || rm -f ais-out/counts_history.csv
+            git show FETCH_HEAD:counts_history.csv > ais-out/counts_history.csv 2>/dev/null || rm -f ais-out/counts_history.csv
           fi
 
-      - name: Collect a 3-minute AIS snapshot
+      - name: Collect the latest day from Global Fishing Watch
         env:
-          AISSTREAM_API_KEY: ${{ secrets.AISSTREAM_API_KEY }}
-          AIS_TEST_BOX: ${{ github.event.inputs.test_box }}
-        run: python3 tools/ais_collect.py --out ais-out --seconds 180
+          GFW_API_TOKEN: ${{ secrets.GFW_API_TOKEN }}
+        run: python3 tools/gfw_collect.py --out ais-out --backfill "${{ github.event.inputs.backfill || '0' }}"
 
       - name: Publish to the ais-data branch (a single commit, replaced each run)
         run: |
@@ -54,5 +49,5 @@ jobs:
           git config user.name "ais-snapshot-bot"
           git config user.email "actions@users.noreply.github.com"
           git add .
-          git commit -q -m "AIS snapshot $(date -u +%Y-%m-%dT%H:%MZ)"
+          git commit -q -m "GFW presence $(date -u +%Y-%m-%dT%H:%MZ)"
           git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ais-data
