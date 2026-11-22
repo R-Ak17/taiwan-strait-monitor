@@ -45,7 +45,8 @@ def request(token, params, box, tries=4):
     body = json.dumps({"geojson": box_geojson(box)}).encode()
     for attempt in range(tries):
         req = urllib.request.Request(url, data=body, method="POST", headers={
-            "Authorization": "Bearer " + token, "Content-Type": "application/json", "Content-Language": "en-EN"})
+            "Authorization": "Bearer " + token, "Content-Type": "application/json", "Content-Language": "en-EN",
+            "User-Agent": "taiwan-strait-monitor/1.0 (academic research; github actions)", "Accept": "application/json"})
         try:
             with urllib.request.urlopen(req, timeout=120) as r:
                 raw = r.read()
