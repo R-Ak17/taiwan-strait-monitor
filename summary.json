@@ -1,0 +1,60 @@
+{
+ "generated_utc": "2026-11-28T15:37:17+00:00",
+ "data_date": "2026-11-23",
+ "kind": "presence-grid",
+ "areas": {
+  "kinmen": {
+   "vessels": 1322,
+   "by_side": {
+    "taiwan": 51,
+    "prc": 908,
+    "other": 363
+   },
+   "hours": {
+    "taiwan": 359.0,
+    "prc": 10699.0,
+    "other": 1885.0
+   }
+  },
+  "matsu": {
+   "vessels": 999,
+   "by_side": {
+    "taiwan": 31,
+    "prc": 651,
+    "other": 317
+   },
+   "hours": {
+    "taiwan": 254.0,
+    "prc": 4093.0,
+    "other": 2162.0
+   }
+  },
+  "penghu": {
+   "vessels": 572,
+   "by_side": {
+    "taiwan": 307,
+    "prc": 2,
+    "other": 263
+   },
+   "hours": {
+    "taiwan": 1486.0,
+    "prc": 20.0,
+    "other": 1180.0
+   }
+  },
+  "strait": {
+   "vessels": 18313,
+   "by_side": {
+    "taiwan": 3326,
+    "prc": 6448,
+    "other": 8539
+   },
+   "hours": {
+    "taiwan": 33245.0,
+    "prc": 68149.0,
+    "other": 69401.0
+   }
+  }
+ },
+ "source": "Global Fishing Watch, AIS vessel presence (public-global-presence:latest), CC BY-NC 4.0"
+}
